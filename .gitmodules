@@ -1,0 +1,3 @@
+[submodule "ArknightsData"]
+	path = ArknightsData
+	url = https://github.com/Dimbreath/ArknightsData
