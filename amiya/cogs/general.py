@@ -192,6 +192,23 @@ class General(commands.Cog):
         embed.set_thumbnail(url=f'https://raw.githubusercontent.com/Aceship/AN-EN-Tags/master/img/furniture/{info["id"]}.png')
         await ctx.send(embed=embed)
 
+    @commands.command(brief="Shows infos of an enemy", usage="[enemy]")
+    async def enemy(self, ctx, *, enemy=None):
+        """
+        Detailed infos of an enemy
+        """
+        if enemy is None:
+            raise GeneralCogError("You need to provide an enemy name!")
+        info = arknights.get_enemy(enemy)
+        embed = Embed(
+            title=info["enemyRace"],
+            description=f'**Attack** : {info["attackType"]}\n{info["description"]}'
+        )
+        embed.set_author(name=f'[{info["enemyIndex"]}] {info["name"]}')
+        embed.add_field(name="Stats", value=f'• HP : {info["endure"]}\n• ATK : {info["attack"]}\n• DEF : {info["defence"]}\n• RES : {info["resistance"]}')
+        embed.set_thumbnail(url=f'https://raw.githubusercontent.com/Aceship/AN-EN-Tags/master/img/enemy/{info["enemyId"]}.png')
+        await ctx.send(embed=embed)
+
     @commands.command(brief="Shows some tips", usage="[category]")
     async def tip(self, ctx, *, category=None):
         """

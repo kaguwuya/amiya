@@ -221,6 +221,22 @@ def get_furniture(furniture):
         key=lambda x: max(lcs(x["name"], furniture), lcs(x["id"], furniture)),
     )
 
+enemy_handbook_table = None
+
+
+def get_enemy(enemy):
+    """
+    Returns enemy by ID or name
+    """
+    global enemy_handbook_table
+    if enemy_handbook_table is None:
+        with open("ArknightsData/en-US/gamedata/excel/enemy_handbook_table.json", "r") as f:
+            enemy_handbook_table = json.load(f)
+    return max(
+        list(enemy_handbook_table.values()),
+        key=lambda x: max(lcs(x["name"], enemy), lcs(x["enemyId"], enemy)),
+    )
+
 
 tip_table = None
 
