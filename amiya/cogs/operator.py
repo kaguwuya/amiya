@@ -1,7 +1,5 @@
 import logging
 import re
-import xml.etree.ElementTree as ET
-from itertools import combinations
 from urllib.request import pathname2url
 
 from discord import Embed
@@ -36,80 +34,6 @@ class Operator(commands.Cog):
         print(info)
         await ctx.send(embed=discord_common.embed_info("Command under construction"))
 
-    @operator.command(
-        brief="Shows which operators you can get with which tags", usage="[tags]"
-    )
-    async def tags(self, ctx, *tags):
-        """
-        Shows which operators you can get with which tags
-        Multi-word tags have to be quoted
-
-        E.g: ;operator tag Defense Melee "Crowd Control" "Top Operator" "Senior Operator"
-        """
-        tag_list = [
-            "Starter",
-            "Senior Operator",
-            "Top Operator",
-            "Melee",
-            "Ranged",
-            "Guard",
-            "Medic",
-            "Vanguard",
-            "Caster",
-            "Sniper",
-            "Defender",
-            "Supporter",
-            "Specialist",
-            "Healing",
-            "Support",
-            "DPS",
-            "AoE",
-            "Slow",
-            "Survival",
-            "Defense",
-            "Debuff",
-            "Shift",
-            "Crowd Control",
-            "Nuker",
-            "Summon",
-            "Fast-Redeploy",
-            "DP-Recovery",
-            "Robot",
-        ]
-        tags = list(tags)
-        if len(tags) == 0 or len(tags) > 5:
-            raise OperatorCogError("You have to provide at least 1 tag and at most 5 tags!")
-        if set(tag_list).issubset(tags):
-            raise OperatorCogError(f'Tag must be one of {", ".join(tag_list)}')
-        tags_combi = [
-            combi
-            for combi_list in [
-                [list(x) for x in combinations(tags, i)] for i in range(1, 4)
-            ]
-            for combi in combi_list
-        ][::-1]
-        match_table = [[] for i in range(len(tags_combi))]
-        embed = Embed()
-        operator_list = arknights.get_operator_by_tags([x.lower() for x in tags])
-        for (tag_combi, match_list) in zip(tags_combi, match_table):
-            match_list.extend(
-                [
-                    (operator["name"], operator["rarity"] + 1)
-                    for operator in operator_list
-                    if (set(tag_combi).issubset(set(operator["tagList"])))
-                    and not (
-                        "Top Operator" not in tags
-                        and "Top Operator" in operator["tagList"]
-                    )
-                ][::-1]
-            )
-            if len(match_list) > 0:
-                embed.add_field(
-                    name=" ".join(tag_combi),
-                    value=f'{" ".join([f"`[{op[1]}☆] {op[0]}`" for op in match_list])}',
-                    inline=False,
-                )
-        await ctx.send(embed=embed)
 
     @operator.command(brief="Shows operator's skins info", usage="[operator]")
     async def skins(self, ctx, *, operator=None):
