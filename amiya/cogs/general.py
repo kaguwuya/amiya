@@ -190,7 +190,9 @@ class General(commands.Cog):
         embed.add_field(name="Details", value=details, inline=False)
         measurements = f'• Width : {info["width"]}\n• Depth : {info["depth"]}\n• Height : {info["height"]}\n• Ambience : {info["comfort"]}'
         embed.add_field(name="Measurements", value=measurements, inline=False)
-        embed.set_thumbnail(url=f'https://raw.githubusercontent.com/Aceship/AN-EN-Tags/master/img/furniture/{info["id"]}.png')
+        embed.set_thumbnail(
+            url=f'https://raw.githubusercontent.com/Aceship/AN-EN-Tags/master/img/furniture/{info["id"]}.png'
+        )
         await ctx.send(embed=embed)
 
     @commands.command(brief="Shows infos of an enemy", usage="[enemy]")
@@ -201,16 +203,30 @@ class General(commands.Cog):
         if enemy is None:
             raise GeneralCogError("You need to provide an enemy name!")
         info = arknights.get_enemy(enemy)
+        description = ""
+        if info["enemyRace"] is not None:
+            description += f'**Race** : {info["enemyRace"] or "???"}\n'
+        description += f'**Attack** : {info["attackType"]}\n{info["description"]}'
         embed = Embed(
-            title=info["enemyRace"],
-            description=f'**Attack** : {info["attackType"]}\n{info["description"]}'
+            title=f'[{info["enemyIndex"]}] {info["name"]}', description=description
         )
-        embed.set_author(name=f'[{info["enemyIndex"]}] {info["name"]}')
-        embed.add_field(name="Stats", value=f'• HP : {info["endure"]}\n• ATK : {info["attack"]}\n• DEF : {info["defence"]}\n• RES : {info["resistance"]}')
-        embed.set_thumbnail(url=f'https://raw.githubusercontent.com/Aceship/AN-EN-Tags/master/img/enemy/{info["enemyId"]}.png')
+        """
+        stats = f'• HP : {info["endure"]}\n• ATK : {info["attack"]}\n• DEF : {info["defence"]}\n• RES : {info["resistance"]}\n'
+        if info["ability"] is not None:
+            stats += info["ability"]}
+        embed.add_field(name="Stats", value=stats)
+        """
+        embed.add_field(name="Stats", value=f'• HP : {info["endure"]}\n• ATK : {info["attack"]}\n• DEF : {info["defence"]}\n• RES : {info["resistance"]}', inline=False)
+        if info["ability"] is not None:
+            embed.add_field(name="Ability", value=info["ability"], inline=False)
+        embed.set_thumbnail(
+            url=f'https://raw.githubusercontent.com/Aceship/AN-EN-Tags/master/img/enemy/{info["enemyId"]}.png'
+        )
         await ctx.send(embed=embed)
 
-    @commands.command(brief="Shows which operators you can get with which tags", usage="[tags]")
+    @commands.command(
+        brief="Shows which operators you can get with which tags", usage="[tags]"
+    )
     async def recruitment(self, ctx, *tags):
         """
         Shows which operators you can get with which recruitment tags
@@ -250,7 +266,9 @@ class General(commands.Cog):
         ]
         tags = list(tags)
         if len(tags) == 0 or len(tags) > 5:
-            raise GeneralCogError("You have to provide at least 1 tag and at most 5 tags!")
+            raise GeneralCogError(
+                "You have to provide at least 1 tag and at most 5 tags!"
+            )
         if set(tag_list).issubset(tags):
             raise GeneralCogError(f'Tag must be one of {", ".join(tag_list)}')
         tags_combi = [
@@ -290,7 +308,9 @@ class General(commands.Cog):
         """
         categories = ["BATTLE", "BUILDING", "GACHA", "MISC"]
         if category is not None and category.upper() not in categories:
-            raise GeneralCogError(f'Category must be one of {", ".join([x.lower() for x in categories])}')
+            raise GeneralCogError(
+                f'Category must be one of {", ".join([x.lower() for x in categories])}'
+            )
         else:
             info = arknights.get_tips(category)
             embed = Embed(description=f'**[{info["category"]}]** {info["tip"]}.')

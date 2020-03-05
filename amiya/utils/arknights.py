@@ -3,23 +3,7 @@ import logging
 import random
 
 import requests
-
-
-def lcs(X, Y):
-    """
-    Longest commom subsequence
-    """
-    m, n = len(X), len(Y)
-    L = [[None] * (n + 1) for i in range(m + 1)]
-    for i in range(m + 1):
-        for j in range(n + 1):
-            if i == 0 or j == 0:
-                L[i][j] = 0
-            elif X[i - 1] == Y[j - 1]:
-                L[i][j] = L[i - 1][j - 1] + 1
-            else:
-                L[i][j] = max(L[i - 1][j], L[i][j - 1])
-    return L[m][n]
+from fuzzywuzzy.fuzz import ratio
 
 
 def fetch(url):
@@ -47,7 +31,11 @@ def get_operator_info(operator):
             operator_table = json.load(f)
     return max(
         list(operator_table.items()),
-        key=lambda x: max(lcs(x[0], operator), lcs(x[1]["name"], operator), lcs(x[1]["appellation"] or "", operator)),
+        key=lambda x: max(
+            ratio(x[0], operator),
+            ratio(x[1]["name"], operator),
+            ratio(x[1]["appellation"] or "", operator),
+        ),
     )[1]
 
 
@@ -67,6 +55,7 @@ def get_operator_skins(operator):
     skin_list = skin_table["charSkins"]
     return [skin for skin in skin_list.values() if skin["charId"] == char_id]
 
+
 skill_table = None
 
 
@@ -81,6 +70,7 @@ def get_operator_skills(operator):
         with open("ArknightsData/en-US/gamedata/excel/skill_table.json", "r") as f:
             skill_table = json.load(f)
     return [(skill, skill_table[skill["skillId"]]) for skill in skills]
+
 
 hidden_table = None
 
@@ -150,7 +140,7 @@ def get_item(item):
     item_list = item_table["items"]
     return max(
         list(item_list.values()),
-        key=lambda x: max(lcs(x["name"], item), lcs(x["itemId"], item)),
+        key=lambda x: max(ratio(x["name"], item), ratio(x["itemId"], item)),
     )
 
 
@@ -170,7 +160,9 @@ def get_stage(stage):
     match = max(
         list(stage_list.values()),
         key=lambda x: max(
-            lcs(x["stageId"], name), lcs(x["code"], name), lcs(x["name"] or "", name),
+            ratio(x["stageId"], name),
+            ratio(x["code"], name),
+            ratio(x["name"] or "", name),
         ),
     )
     if "+cm" in stage:
@@ -218,8 +210,9 @@ def get_furniture(furniture):
     furniture_list = building_data["customData"]["furnitures"]
     return max(
         list(furniture_list.values()),
-        key=lambda x: max(lcs(x["name"], furniture), lcs(x["id"], furniture)),
+        key=lambda x: max(ratio(x["name"], furniture), ratio(x["id"], furniture)),
     )
+
 
 enemy_handbook_table = None
 
@@ -230,11 +223,13 @@ def get_enemy(enemy):
     """
     global enemy_handbook_table
     if enemy_handbook_table is None:
-        with open("ArknightsData/en-US/gamedata/excel/enemy_handbook_table.json", "r") as f:
+        with open(
+            "ArknightsData/en-US/gamedata/excel/enemy_handbook_table.json", "r"
+        ) as f:
             enemy_handbook_table = json.load(f)
     return max(
         list(enemy_handbook_table.values()),
-        key=lambda x: max(lcs(x["name"], enemy), lcs(x["enemyId"], enemy)),
+        key=lambda x: max(ratio(x["name"], enemy), ratio(x["enemyId"], enemy)),
     )
 
 

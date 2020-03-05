@@ -20,7 +20,7 @@ class Guides(commands.Cog):
 
         All credits goes to Shaw bot in Arknights Official server (Invite link: https://discord.gg/arknights)
         """
-        await ctx.send(embed=Embed(title="**Arknights Farming Guide and Important Drop Rates** (By Fvr_Vain#3466)", url="https://docs.google.com/spreadsheets/d/1Fhz24nSxUef3FWplZtwPMRldyrNMc45DOcN0yaSTPaw").set_image(url="https://i.imgur.com/hnKsIxu.jpg").set_footer(text="All credits goes to Shaw bot in Arknights Official server"))
+        await ctx.send(embed=Embed(title="**Arknights Farming Guide and Important Drop Rates** (By Fvr_Vain#3466)", url="https://docs.google.com/spreadsheets/d/1Fhz24nSxUef3FWplZtwPMRldyrNMc45DOcN0yaSTPaw").set_image(url="https://i.imgur.com/09j7thP.png").set_footer(text="All credits goes to Shaw bot in Arknights Official server"))
 
     @commands.command(brief="Banner infos")
     async def banner(self, ctx):
@@ -29,7 +29,7 @@ class Guides(commands.Cog):
 
         All credits goes to Shaw bot in Arknights Official server (Invite link: https://discord.gg/arknights)
         """
-        await ctx.send(embed=Embed(title="Past banners in CN Sequence, EN seems not to be following CN's sequence.", url="https://cdn.discordapp.com/attachments/586588958885150721/682652966406455382/Banner.jpg").set_image(url="https://cdn.discordapp.com/attachments/586588958885150721/682652966406455382/Banner.jpg").set_footer(text="All credits goes to Shaw bot in Arknights Official server"))
+        await ctx.send(embed=Embed(title="Past banners in CN Sequence, EN seems not to be following CN's sequence.", url="https://i.imgur.com/0sgPqNa.jpg").set_image(url="https://i.imgur.com/0sgPqNa.jpg").set_footer(text="All credits goes to Shaw bot in Arknights Official server"))
 
     @commands.command(brief="Team-building guides")
     async def teambuilding(self, ctx):
