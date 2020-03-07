@@ -16,21 +16,25 @@ def main():
     if not token:
         logging.error("Discord Token required")
         return
-
+    # Config logging
     logging.basicConfig(
         format="[{asctime}][{levelname}][{name}] {message}",
         style="{",
         datefmt="%d-%m-%Y %H:%M:%S",
         level=logging.INFO,
     )
-
-    bot = commands.AutoShardedBot(command_prefix=commands.when_mentioned_or(os.getenv("PREFIX")))
+    # Auto shard
+    bot = commands.AutoShardedBot(
+        command_prefix=commands.when_mentioned_or(os.getenv("PREFIX"))
+    )
     cogs = [file.stem for file in Path("amiya", "cogs").glob("*.py")]
+    # Load extensions
     for extension in cogs:
         bot.load_extension(f"amiya.cogs.{extension}")
     logging.info(f'Cogs loaded: {", ".join(bot.cogs)}')
 
     def no_dm_check(ctx):
+        """ Check for DMs """
         if ctx.guild is None:
             raise commands.NoPrivateMessage("Private messages not permitted.")
         return True

@@ -1,0 +1,2 @@
+# Amiya
+Arknights Discord bot

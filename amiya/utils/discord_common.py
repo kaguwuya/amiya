@@ -1,6 +1,8 @@
 import asyncio
 import functools
 import logging
+from datetime import datetime
+from pytz import timezone
 
 import discord
 from discord.ext import commands
@@ -69,11 +71,13 @@ async def presence(bot):
             type=discord.ActivityType.listening, name="your commands"
         )
     )
-    await asyncio.sleep(60)
+    await asyncio.sleep(30)
     while True:
+        # Get current time in PST format
+        current_time = datetime.now(tz=timezone('US/Pacific'))
         await bot.change_presence(
             activity=discord.Game(
-                name="Amiya, leader of Rhodes Island, will fight alongside you."
+                name=f'{current_time.strftime("%H:%M PST")}'
             )
         )
-        await asyncio.sleep(10 * 60)
+        await asyncio.sleep(60)

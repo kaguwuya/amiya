@@ -1,39 +1,64 @@
 import json
 import logging
 import random
+from typing import Optional
 
 import requests
+# Fuzzy String Matching
 from fuzzywuzzy.fuzz import ratio
 
 
-def fetch(url):
+def fetch(url: str) -> dict:
     """
-    Fetch data from Github
+    Grabs json data from Github link
+
+    Args:    
+        url (str): Github raw file url 
+
+    Returns:
+        dict: A json that contains the results
     """
     data = requests.get(url)
+    # If an error occurred during fetching
     if data.status_code != 200:
         logging.error("Fetching failed")
         return None
+    # Parses data to json (dict)
     data = data.json()
     return data
+
+
+"""
+Return logic for every function: Get the value with highest Levenshtein Distance between input and name, ID (or code, appellation)
+"""
 
 
 operator_table = None
 
 
-def get_operator_info(operator):
+def get_operator_info(operator: str) -> dict:
     """
-    Returns operator info by ID or name
+    Grabs operator detailed info (search by name, ID or appellation)
+
+    Args:
+        operator (str): Operator name, ID or appellation
+
+    Returns: 
+        dict: A json that contains the operator info with ID, name or appellation that matches the parameter
     """
     global operator_table
+    # Check if operator_table is already loaded and load it from local file
     if operator_table is None:
         with open("ArknightsData/en-US/gamedata/excel/character_table.json", "r") as f:
             operator_table = json.load(f)
     return max(
         list(operator_table.items()),
         key=lambda x: max(
+            # Match ID
             ratio(x[0], operator),
+            # Match name
             ratio(x[1]["name"], operator),
+            # Match appellation
             ratio(x[1]["appellation"] or "", operator),
         ),
     )[1]
@@ -42,16 +67,26 @@ def get_operator_info(operator):
 skin_table = None
 
 
-def get_operator_skins(operator):
+def get_operator_skins(operator: str) -> list:
     """
-    Returns operator skins
+    Grabs operator skins detailed infos (search by operator name, ID or appellation)
+
+    Args:
+        operator (str): Operator name, ID or appellation
+
+    Returns: 
+        list: A list of dict that contains the operator skins with ID, name or appellation that matches the parameter
     """
+    # Search for operator
     info = get_operator_info(operator)
+    # Get default skin ID
     char_id = info["phases"][0]["characterPrefabKey"]
+    # Check if skin_table is already loaded and load it from local file
     global skin_table
     if skin_table is None:
         with open("ArknightsData/en-US/gamedata/excel/skin_table.json", "r") as f:
             skin_table = json.load(f)
+    # Get list of operator skins mapped by skin ID
     skin_list = skin_table["charSkins"]
     return [skin for skin in skin_list.values() if skin["charId"] == char_id]
 
@@ -59,34 +94,55 @@ def get_operator_skins(operator):
 skill_table = None
 
 
-def get_operator_skills(operator):
+def get_operator_skills(operator: str) -> list:
     """
-    Returns operator skills
+    Grabs operator skills detailed infos (search by operator name, ID or appellation)
+
+    Args:
+        operator (str): Operator name, ID or appellation
+
+    Returns: 
+        list: A list of tuple (skill from character_table, skill from skill_table) that contains the operator skills with ID, name or appellation that matches the parameter
     """
+    # Search for operator
     info = get_operator_info(operator)
+    # Get operator skills
     skills = operator["skills"]
+    # Check if skill_table is already loaded and load it from local file
     global skill_table
     if skill_table is None:
         with open("ArknightsData/en-US/gamedata/excel/skill_table.json", "r") as f:
             skill_table = json.load(f)
+    # Return a list of tuple with skill info from operator_table and skill_table
+    # As for why, the skill data from 2 tables are different but both useful
     return [(skill, skill_table[skill["skillId"]]) for skill in skills]
 
 
 hidden_table = None
 
 
-def get_operator_by_tags(tags):
+def get_operator_by_tags(tags: list) -> list:
     """
-    Returns operators that have specified tags
+    Grabs operators that contains given tags
+
+    Args: 
+        tags (list): The input tags list (input must be correct)
+
+    Returns:
+        list: A list of dict that contains operator's name, position (Ranged or Melee), tag list. rarity and profession
     """
     url = "https://raw.githubusercontent.com/Aceship/AN-EN-Tags/master/json/akhr.json"
+    # Check if operator_table and hidden_table is already loaded and load it from local file or fetch it
     global operator_table, hidden_table
     if operator_table is None:
         with open("ArknightsData/en-US/gamedata/excel/character_table.json", "r") as f:
             operator_table = json.load(f)
     if hidden_table is None:
         hidden_table = fetch(url)
+    # As the operator_table doesn't actually show which operator we can't get from recruitment, we need Aceship's akhr file to check
+    # Even though in character_table.json there's a key named "itemOptainApproach", I don't use it to check because it's faulty (?) as Indra is supposed to be a Recruitment only operator but it shows "Recruitment & Headhunting" in her "itemOptainApproach"
     hidden_list = [{x["name"]: x["hidden"]} for x in hidden_table]
+    # character_table.json doesn't show the profession as it is shown in-game
     profession_table = {
         "CASTER": "Caster",
         "TANK": "Defender",
@@ -99,21 +155,29 @@ def get_operator_by_tags(tags):
         "TRAP": "Trap",
         "PIONEER": "Vanguard",
     }
+    # The actual work
     operator_list = [
+        # Grabbing only what we need
         {key: x[key] for key in ["name", "position", "tagList", "rarity", "profession"]}
         for x in operator_table.values()
         if (
             (
+                # Check for common tags
                 x["tagList"] is not None
                 and (set([i.lower() for i in x["tagList"]]) & set(tags))
             )
+            # Check for position
             or x["position"].lower() in tags
+            # Check for profession
             or profession_table[x["profession"]].lower() in tags
+            # Check for Senior or Top Operator by rarity (0-indexed)
             or ("senior operator" in tags and x["rarity"] == 4)
             or ("top operator" in tags and x["rarity"] == 5)
         )
+        # If operator is not in hidden_list, that means we can obtain through Recruitment
         and {x["name"]: False} in hidden_list
     ]
+    # Append the remaining tags as the tagList doesn't contain position, profession or rarity
     for operator in operator_list:
         operator["tagList"].append(operator.pop("position", None).title())
         operator["tagList"].append(
@@ -129,17 +193,26 @@ def get_operator_by_tags(tags):
 item_table = None
 
 
-def get_item(item):
+def get_item(item: str) -> dict:
     """
-    Returns item info by name or ID
+    Grabs detailed item info (search by name or ID)
+
+    Args:
+        item (str): Item name or ID
+
+    Returns:
+        dict: A dict that contains item info with name or ID that matches the parameter
     """
+    # Check if item_table is already loaded and load it from local file
     global item_table
     if item_table is None:
         with open("ArknightsData/en-US/gamedata/excel/item_table.json", "r") as f:
             item_table = json.load(f)
+    # Get item list from table
     item_list = item_table["items"]
     return max(
         list(item_list.values()),
+        # Match name or ID
         key=lambda x: max(ratio(x["name"], item), ratio(x["itemId"], item)),
     )
 
@@ -147,51 +220,81 @@ def get_item(item):
 stage_table = None
 
 
-def get_stage(stage):
+def get_stage(stage: str) -> dict:
     """
-    Returns stage info by ID or name
+    Grabs detailed stage info (search by name, code or ID)
+
+    Args:
+        stage (str): Stage name, code or ID
+
+    Returns:
+        dict: A dict that contains stage info with name, code or ID that matches the parameter
     """
+    # Check if stage_table is already loaded and load it from local file
     global stage_table
     if stage_table is None:
         with open("ArknightsData/en-US/gamedata/excel/stage_table.json", "r") as f:
             stage_table = json.load(f)
+    # Get stage list
     stage_list = stage_table["stages"]
+    # Get stage name from input (E.g 5-10 +cm)
     name = " ".join([x for x in stage if x[0] != "+"])
     match = max(
         list(stage_list.values()),
         key=lambda x: max(
+            # Match ID
             ratio(x["stageId"], name),
+            # Match code
             ratio(x["code"], name),
+            # Match name
             ratio(x["name"] or "", name),
         ),
     )
+    # Challenge mode
     if "+cm" in stage:
+        # Check if challenge mode of current stage exists or not
         if match["hardStagedId"] is not None:
             match = stage_list[match["hardStagedId"]]
     return match
 
 
-def get_stage_with_item(id):
+def get_stage_with_item(id: str) -> list:
     """
-    Returns stages that drop item
+    Grabs stages that drops item with id
+
+    Args:
+        id (str): Item ID (input must be correct)
+
+    Returns:
+        list: A list that contains tuple (stage that drop item with ID, probability of item dropping)
     """
+    # Check if stage_table is already loaded and load it from local file
     global stage_table
     if stage_table is None:
         with open("ArknightsData/en-US/gamedata/excel/stage_table.json", "r") as f:
             stage_table = json.load(f)
+    # Get stage list
     stage_list = stage_table["stages"]
 
-    def get_index(lst):
+    def get_index(lst: list) -> Optional[int]:
+        """ 
+        Get index of item that has the same ID with given ID in item drop list of stage 
+        Returns None if item is not in list
+        """
         return next((idx for (idx, dt) in enumerate(lst) if dt["id"] == id), None)
 
     return [
         (
+            # Stage info
             x,
+            # Item drop type (Probability of dropping)
+            # I'm sure there are better ways to do this but i'm a noob
             x["stageDropInfo"]["displayDetailRewards"][
                 get_index(x["stageDropInfo"]["displayDetailRewards"])
             ]["dropType"],
         )
         for x in list(stage_list.values())
+        # Check if item is in list
         if get_index(x["stageDropInfo"]["displayDetailRewards"]) is not None
     ]
 
@@ -199,17 +302,26 @@ def get_stage_with_item(id):
 building_data = None
 
 
-def get_furniture(furniture):
+def get_furniture(furniture: str) -> dict:
     """
-    Returns furniture by ID or name
+    Grabs detailed furniture info (search by name or ID)
+
+    Args:
+        furniture (str): Furniture name or ID
+
+    Returns:
+        dict: A dict that contains furniture info with name or ID that matches the parameter
     """
+    # Check if building_data is already loaded and load it from local file
     global building_data
     if building_data is None:
         with open("ArknightsData/en-US/gamedata/excel/building_data.json", "r") as f:
             building_data = json.load(f)
+    # Get furniture list
     furniture_list = building_data["customData"]["furnitures"]
     return max(
         list(furniture_list.values()),
+        # Match name or ID
         key=lambda x: max(ratio(x["name"], furniture), ratio(x["id"], furniture)),
     )
 
@@ -217,10 +329,17 @@ def get_furniture(furniture):
 enemy_handbook_table = None
 
 
-def get_enemy(enemy):
+def get_enemy(enemy: str) -> dict:   
     """
-    Returns enemy by ID or name
+    Grabs detailed enemy info (search by name or ID)
+
+    Args:
+        enemy (str): Enemy name or ID
+
+    Returns:
+        dict: A dict that contains enemy info with name or ID that matches the parameter
     """
+    # Check if enemy_handbook_table is already loaded and load it from local file
     global enemy_handbook_table
     if enemy_handbook_table is None:
         with open(
@@ -229,6 +348,7 @@ def get_enemy(enemy):
             enemy_handbook_table = json.load(f)
     return max(
         list(enemy_handbook_table.values()),
+        # Match name or ID
         key=lambda x: max(ratio(x["name"], enemy), ratio(x["enemyId"], enemy)),
     )
 
@@ -236,16 +356,26 @@ def get_enemy(enemy):
 tip_table = None
 
 
-def get_tips(category):
+def get_tips(category: str) -> dict:
     """
-    Returns tips
+    Grabs a random tip (with or without category)
+
+    Args:
+        category (str): Category of tip (optional) (must be correct)
+
+    Returns:
+        dict: A dict that contains tip about given category
     """
+    # Check if tip_table is already loaded and load it from local file
     global tip_table
     if tip_table is None:
         with open("ArknightsData/en-US/gamedata/excel/tip_table.json", "r") as f:
             tip_table = json.load(f)
+    # Get tip list
     tip_list = tip_table["tips"]
-    if category == None:
-        return random.choice(tip_list)
-    else:
-        return random.choice([x for x in tip_list if x["category"] == category.upper()])
+    # Random tip
+    return random.choice(
+        tip_list
+        if category is None
+        else [x for x in tip_list if x["category"] == category.upper()]
+    )
