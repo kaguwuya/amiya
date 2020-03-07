@@ -16,6 +16,7 @@ def main():
     if not token:
         logging.error("Discord Token required")
         return
+
     # Config logging
     logging.basicConfig(
         format="[{asctime}][{levelname}][{name}] {message}",
@@ -23,10 +24,12 @@ def main():
         datefmt="%d-%m-%Y %H:%M:%S",
         level=logging.INFO,
     )
+
     # Auto shard
     bot = commands.AutoShardedBot(
         command_prefix=commands.when_mentioned_or(os.getenv("PREFIX"))
     )
+    
     cogs = [file.stem for file in Path("amiya", "cogs").glob("*.py")]
     # Load extensions
     for extension in cogs:

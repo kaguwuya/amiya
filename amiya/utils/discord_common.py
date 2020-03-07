@@ -66,12 +66,14 @@ async def bot_error_handler(ctx, exception):
 
 
 async def presence(bot):
+    """ Discord presence """
     await bot.change_presence(
         activity=discord.Activity(
             type=discord.ActivityType.listening, name="your commands"
         )
     )
     await asyncio.sleep(30)
+
     while True:
         # Get current time in PST format
         current_time = datetime.now(tz=timezone('US/Pacific'))

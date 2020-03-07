@@ -21,6 +21,7 @@ class Operator(commands.Cog):
         """
         Operator commands
         """
+        
         await ctx.send_help(ctx.command)
 
     @operator.command(brief="Shows info of an operator", usage="[operator]")
@@ -30,10 +31,13 @@ class Operator(commands.Cog):
 
         E.g: ;operator info Amiya
         """
+
         if operator is None:
             raise OperatorCogError("You need to provide an operator name!")
+
         # Get operator info
         info = arknights.get_operator_info(operator)
+
         await ctx.send(embed=discord_common.embed_info("Command under construction"))
 
     @operator.command(brief="Shows operator's skins info", usage="[operator]")
@@ -43,10 +47,13 @@ class Operator(commands.Cog):
 
         E.g: ;operator skins Angelina
         """
+
         if operator is None:
             raise OperatorCogError("You need to provide an operator name!")
+
         # Get skin info
         info = arknights.get_operator_skins(operator)
+
         embeds = []
         for skin in info:
             # Regex for stuffs like <color name=#ffffff>Bla bla bla</color>
@@ -66,6 +73,7 @@ class Operator(commands.Cog):
                 description=(content or "No description available"),
                 color=color,
             )
+
             details = f'• Model : {skin["displaySkin"]["modelName"]}\n• Design : {skin["displaySkin"]["drawerName"]}\n'
             # Checks are important because some of the value can be None
             if (
@@ -82,6 +90,7 @@ class Operator(commands.Cog):
                     f'• How to obtain : {skin["displaySkin"]["obtainApproach"]}\n'
                 )
             embed.add_field(name="Details", value=details, inline=False)
+
             # Get item image from https://github.com/Aceship/AN-EN-Tags/tree/master/img
             embed.set_image(
                 url=f'https://raw.githubusercontent.com/Aceship/AN-EN-Tags/master/img/characters/{pathname2url(skin["portraitId"])}.png'
@@ -89,6 +98,7 @@ class Operator(commands.Cog):
             embed.set_thumbnail(
                 url=f'https://raw.githubusercontent.com/Aceship/AN-EN-Tags/master/img/portraits/{pathname2url(skin["portraitId"].replace("+", "a").replace("#", "b" if skin["displaySkin"]["modelName"] == "Amiya" else ""))}.png'
             )
+
             embeds.append(embed)
         # Start paginator
         pgnt = paginator.BotEmbedPaginator(ctx, embeds)
@@ -101,10 +111,13 @@ class Operator(commands.Cog):
 
         E.g: ;operator skills Angelina
         """
+
         if operator is None:
             raise OperatorCogError("You need to provide an operator name!")
+
         # Get skills list
         info = arknights.get_operator_skills(operator)
+        
         await ctx.send(embed=discord_common.embed_info("Command under construction"))
 
     @discord_common.send_error_if(OperatorCogError)
