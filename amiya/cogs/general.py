@@ -69,6 +69,7 @@ class General(commands.Cog):
             details += f'\n• Storyline progress : {info["slProgress"]}%'
         embed.add_field(name="Details", value=details, inline=False)
 
+        # Filter Originite Prime
         first = [
             f'• {x["name"]} (`{x["itemId"]}`)'
             for x in [
@@ -77,6 +78,7 @@ class General(commands.Cog):
                 if y["dropType"] == 8  # First clear item (Originite Prime)
             ]
         ]
+        # Filter items
         first.extend(
             [
                 f'• {x["name"]} (`{x["itemId"]}`)'
@@ -89,6 +91,7 @@ class General(commands.Cog):
                 ]
             ]
         )
+        # Filter operator
         first.extend(
             [
                 f'• {x["name"]}'
@@ -99,6 +102,7 @@ class General(commands.Cog):
                 ]
             ]
         )
+        # Filter furniture
         first.extend(
             [
                 f'• {x["name"]}'
@@ -113,6 +117,7 @@ class General(commands.Cog):
         if len(first) > 0:
             embed.add_field(name="First Clear", value="\n".join(first), inline=False)
 
+        # Filter regular drops
         regular = [
             f'• {x["name"]} (`{x["itemId"]}`)'
             for x in [
@@ -127,6 +132,7 @@ class General(commands.Cog):
                 name="Regular Drops", value="\n".join(regular), inline=False
             )
 
+        # Filter special drops
         special = [
             f'• {x["name"]} (`{x["itemId"]}`)'
             for x in [
@@ -141,6 +147,7 @@ class General(commands.Cog):
                 name="Special Drops", value="\n".join(special), inline=False
             )
 
+        # Filter extra drops
         extra = [
             f'• {x["name"]} (`{x["itemId"]}`)'
             for x in [

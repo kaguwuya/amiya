@@ -1,3 +1,5 @@
+# Credits goes to https://github.com/LiBa001/disputils
+
 import asyncio
 from abc import ABC
 from copy import deepcopy
