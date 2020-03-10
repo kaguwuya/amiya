@@ -21,7 +21,7 @@ class Operator(commands.Cog):
         """
         Operator commands
         """
-        
+
         await ctx.send_help(ctx.command)
 
     @operator.command(brief="Shows info of an operator", usage="[operator]")
@@ -70,7 +70,8 @@ class Operator(commands.Cog):
 
             embed = Embed(
                 title=f'{skin["displaySkin"]["skinName"] or skin["displaySkin"]["modelName"]} ({skin["displaySkin"]["skinGroupName"]})',
-                description=(content or "No description available"),
+                description=(
+                    content or "No description available"),
                 color=color,
             )
 
@@ -91,13 +92,12 @@ class Operator(commands.Cog):
                 )
             embed.add_field(name="Details", value=details, inline=False)
 
-            # Get item image from https://github.com/Aceship/AN-EN-Tags/tree/master/img
+            # Get item image from
+            # https://github.com/Aceship/AN-EN-Tags/tree/master/img
             embed.set_image(
-                url=f'https://raw.githubusercontent.com/Aceship/AN-EN-Tags/master/img/characters/{pathname2url(skin["portraitId"])}.png'
-            )
+                url=f'https://raw.githubusercontent.com/Aceship/AN-EN-Tags/master/img/characters/{pathname2url(skin["portraitId"])}.png')
             embed.set_thumbnail(
-                url=f'https://raw.githubusercontent.com/Aceship/AN-EN-Tags/master/img/portraits/{pathname2url(skin["portraitId"].replace("+", "a").replace("#", "b" if skin["displaySkin"]["modelName"] == "Amiya" else ""))}.png'
-            )
+                url=f'https://raw.githubusercontent.com/Aceship/AN-EN-Tags/master/img/portraits/{pathname2url(skin["portraitId"].replace("+", "a").replace("#", "b" if skin["displaySkin"]["modelName"] == "Amiya" else ""))}.png')
 
             embeds.append(embed)
         # Start paginator
@@ -117,7 +117,7 @@ class Operator(commands.Cog):
 
         # Get skills list
         info = arknights.get_operator_skills(operator)
-        
+
         await ctx.send(embed=discord_common.embed_info("Command under construction"))
 
     @discord_common.send_error_if(OperatorCogError)

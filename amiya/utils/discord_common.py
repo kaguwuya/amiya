@@ -61,8 +61,8 @@ async def bot_error_handler(ctx, exception):
     else:
         exc_info = type(exception), exception, exception.__traceback__
         logger.exception(
-            "Ignoring exception in command {}:".format(ctx.command), exc_info=exc_info
-        )
+            "Ignoring exception in command {}:".format(
+                ctx.command), exc_info=exc_info)
 
 
 async def presence(bot):
@@ -79,7 +79,7 @@ async def presence(bot):
         current_time = datetime.now(tz=timezone('US/Pacific'))
         await bot.change_presence(
             activity=discord.Game(
-                name=f'{current_time.strftime("%H:%M PST")}'
+                name=f'{current_time.strftime("%I:%M %p PST")}'
             )
         )
-        await asyncio.sleep(60)
+        await asyncio.sleep(60 - current_time.second)

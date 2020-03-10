@@ -76,7 +76,7 @@ class Guides(commands.Cog):
 
         All credits goes to Shaw bot in Arknights Official server (Invite link: https://discord.gg/arknights)
         """
-        
+
         await ctx.send(
             embed=Embed(
                 description='_"There are no bad Operators, only bad Doctors."_\n\n[Arknights Operator\'s Category Guide by depe#2300](https://docs.google.com/spreadsheets/d/1_SBmO9HR0IcOIBFkKSJ-8eERblemY2ykLwxGtaTuZdU/)\n\n[Character Cheat Sheet by Botzu ( ˘▽˘) ⅽ[ː̠̈ː̠̈ː̠̈] ͌#7103](https://docs.google.com/spreadsheets/d/1L5smDJR2_4JCLvDJpT2Cz94inl8MFtRXH-xEOyuahIA/)'

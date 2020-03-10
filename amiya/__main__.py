@@ -6,7 +6,7 @@ from pathlib import Path
 from discord.ext import commands
 from dotenv import load_dotenv
 
-from amiya.utils import discord_common
+from amiya.utils import constants, discord_common
 
 load_dotenv()
 
@@ -29,12 +29,16 @@ def main():
     bot = commands.AutoShardedBot(
         command_prefix=commands.when_mentioned_or(os.getenv("PREFIX"))
     )
-    
+
     cogs = [file.stem for file in Path("amiya", "cogs").glob("*.py")]
     # Load extensions
     for extension in cogs:
         bot.load_extension(f"amiya.cogs.{extension}")
     logging.info(f'Cogs loaded: {", ".join(bot.cogs)}')
+
+    # Load constants
+    constants.setup()
+    logging.info("Constants loaded")
 
     def no_dm_check(ctx):
         """ Check for DMs """

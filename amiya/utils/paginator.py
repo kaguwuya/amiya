@@ -13,8 +13,9 @@ class Dialog(ABC):
     def __init__(self, *args, **kwargs):
         self._embed: discord.Embed = None
         self.message: discord.Message = None
-        self.color: hex = kwargs.get("color") or kwargs.get("colour") or 0x000000
-        
+        self.color: hex = kwargs.get(
+            "color") or kwargs.get("colour") or 0x000000
+
     async def quit(self, text: str = None):
         """
         Quit the dialog.
@@ -91,8 +92,7 @@ class EmbedPaginator(Dialog):
             else:
                 if page.footer.icon_url == discord.Embed.Empty:
                     page.set_footer(
-                        text=f"{page.footer.text} - ({pages.index(page)+1}/{len(pages)})"
-                    )
+                        text=f"{page.footer.text} - ({pages.index(page)+1}/{len(pages)})")
                 else:
                     page.set_footer(
                         icon_url=page.footer.icon_url,
@@ -117,7 +117,8 @@ class EmbedPaginator(Dialog):
         if channel is None and self.message is not None:
             channel = self.message.channel
         elif channel is None:
-            raise TypeError("Missing argument. You need to specify a target channel.")
+            raise TypeError(
+                "Missing argument. You need to specify a target channel.")
 
         self._embed = self.pages[0]
 
@@ -132,7 +133,9 @@ class EmbedPaginator(Dialog):
             await self.message.add_reaction(emoji)
 
         def check(r: discord.Reaction, u: discord.User):
-            res = (r.message.id == self.message.id) and (r.emoji in self.control_emojis)
+            res = (
+                r.message.id == self.message.id) and (
+                r.emoji in self.control_emojis)
 
             if len(users) > 0:
                 res = res and u.id in [u1.id for u1 in users]
