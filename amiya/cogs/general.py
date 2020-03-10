@@ -28,7 +28,7 @@ class General(commands.Cog):
             raise GeneralCogError("You need to provide a stage name or id!")
 
         # Get stage info
-        info, extra_info = arknights.get_stage(stage)
+        info, extra_info, anni_info = arknights.get_stage(stage)
 
         title = f'[{info["code"]}] {info["name"]} {"(Challenge Mode)" if "+cm" in stage else ""}'
 
@@ -45,7 +45,10 @@ class General(commands.Cog):
             description=f'Recommend Operator Lv. **[{info["dangerLevel"]}]**\n{description}',
         )
 
-        general = f'• Sanity Cost : {info["apCost"]}\n• Practice Ticket Cost : {max(0, info["practiceTicketCost"])}\n• EXP Gain : {info["expGain"]}\n• LMD Gain : {info["goldGain"]}\n• Favor Gain : {info["completeFavor"]}'
+        # General info
+        general = ""
+        if anni_info is None:
+            general += f'• Sanity Cost : {info["apCost"]}\n• Practice Ticket Cost : {max(0, info["practiceTicketCost"])}\n• EXP Gain : {info["expGain"]}\n• LMD Gain : {info["goldGain"]}\n• Favor Gain : {info["completeFavor"]}'
         if len(info["unlockCondition"]) > 0:
             unlock_condition = [
                 f'{"Clear" if st["completeState"] == 2 else "Perfect"} **{arknights.get_stage(st["stageId"])[0]["code"]}**' for st in info["unlockCondition"]]
@@ -56,16 +59,17 @@ class General(commands.Cog):
                         value=general, inline=False)
 
         # Challenge Mode info
-        challenge_mode = arknights.get_stage(info["hardStagedId"])[0]
-        challenge_general = ""
-        if len(challenge_mode["unlockCondition"]) > 0:
-            unlock_condition = [
-                f'{"Clear" if st["completeState"] == 2 else "Perfect"} **{arknights.get_stage(st["stageId"])[0]["code"]}**' for st in challenge_mode["unlockCondition"]]
-            challenge_general += f'• Unlock Conditions : {", ".join(unlock_condition)}'
-        challenge_description = pattern.sub(
-            r"**\1**", challenge_mode["description"])
-        embed.add_field(name="Challenge Mode Information",
-                        value=f'{challenge_description}\n{challenge_general}', inline=False)
+        if info["hardStagedId"] is not None:
+            challenge_mode = arknights.get_stage(info["hardStagedId"])[0]
+            challenge_general = ""
+            if len(challenge_mode["unlockCondition"]) > 0:
+                unlock_condition = [
+                    f'{"Clear" if st["completeState"] == 2 else "Perfect"} **{arknights.get_stage(st["stageId"])[0]["code"]}**' for st in challenge_mode["unlockCondition"]]
+                challenge_general += f'• Unlock Conditions : {", ".join(unlock_condition)}'
+            challenge_description = pattern.sub(
+                r"**\1**", challenge_mode["description"])
+            embed.add_field(name="Challenge Mode Information",
+                            value=f'{challenge_description}\n{challenge_general}', inline=False)
 
         # Map info
         extra_options = extra_info["options"]
@@ -191,9 +195,21 @@ class General(commands.Cog):
                 value="\n".join(extra),
                 inline=False)
 
+        # Annihilatio
+        if anni_info is not None:
+            # First clear rewards
+            first_clear = anni_info["breakLadders"]
+            endl = "\n"  # Backslashes may not appear inside the expression portions of f-strings
+            embed.add_field(name="First Clear", value=endl.join(
+                [f'''**{ladder["killCnt"]}** kills\n{endl.join([f"• {reward['count']} {arknights.get_item(reward['id'])['name']} (`{reward['id']}`)" for reward in ladder["rewards"]])}{f"{endl}• Weekly Orundum Reward Limit : +{ladder['breakFeeAdd']}" if ladder["breakFeeAdd"] > 0 else ""}''' for ladder in first_clear]), inline=False)
+            # Sanity Return Rule
+            gain_ladder = anni_info["gainLadders"]
+            embed.add_field(name="Sanity Return Rule", value="\n".join(
+                [f'**{ladder["killCnt"]}** kills\n• Sanity Refund : {ladder["apFailReturn"]}\n• EXP Gain : {ladder["expGain"]}\n• LMD Gain : {ladder["goldGain"]}\n• Favor Gain : {ladder["favor"]}' for ladder in gain_ladder]), inline=False)
+
         # Unreliable image source
         embed.set_image(
-            url=f'https://gamepress.gg/arknights/sites/arknights/files/game-images/mission_maps/{info["mainStageId"]}.png')
+            url=f'https://gamepress.gg/arknights/sites/arknights/files/game-images/mission_maps/{info["stageId"]}.png')
 
         await ctx.send(embed=embed)
 
@@ -302,7 +318,7 @@ class General(commands.Cog):
         if info["enemyRace"] is not None:
             description += f'**Race** : {info["enemyRace"] or "???"}\n'
         # Attack types: Melee, Ranged, Ranged Arts, etc
-        description += f'**Attack** : {info["attackType"]}\n{info["description"]}'
+        description += f'''**Attack** : {info["attackType"] or "Doesn't Attack"}\n{info["description"]}'''
         embed = Embed(
             title=f'[{info["enemyIndex"]}] {info["name"]}',
             description=description)

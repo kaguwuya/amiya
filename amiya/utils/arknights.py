@@ -235,15 +235,16 @@ def get_item(item: str) -> dict:
 stage_table = None
 
 
-def get_stage(stage: str) -> Tuple[dict, dict]:
+def get_stage(stage: str) -> Tuple[dict, dict, Optional[dict]]:
     """
     Grabs detailed stage info (search by name, code or ID)
 
     Args:
-        stage (str): Stage name, code or ID
-
+        stage (str): stage (str): Stage name, code or ID
+    
     Returns:
-        Tuple[dict, dict]: A tuple of dict that contains stage info with name, code or ID that matches the parameter
+        Tuple[dict, dict, Optional[dict]]:  A tuple of dict that contains stage info with name, code or ID that matches the parameter. 
+                                            Last variable is a dict if stage is annihilation
     """
 
     # Check if stage_table is already loaded and load it from local file
@@ -267,12 +268,17 @@ def get_stage(stage: str) -> Tuple[dict, dict]:
         ),
     )
 
+    # Additional info
     stage_extra_info = None
     with open(f'ArknightsData/en-US/gamedata/levels/{stage_info["levelId"].lower()}.json', "r") as f:
         stage_extra_info = json.load(f)
 
-    return (stage_info, stage_extra_info)
+    # Annihilatio
+    anni_info = None
+    if stage_info["stageType"] == "CAMPAIGN":
+        anni_info = stage_table["campaigns"][stage_info["stageId"]]
 
+    return (stage_info, stage_extra_info, anni_info)
 
 def get_stage_with_item(id: str) -> list:
     """
