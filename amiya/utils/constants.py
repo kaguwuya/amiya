@@ -19,7 +19,7 @@ def setup() -> None:
     for key, value in gamedata_const.items():
         setattr(
             sys.modules[__name__],
-            underscore(key).title(), # Following PEP8
+            underscore(key).upper(), # Following PEP8
             value)
 
 

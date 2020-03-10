@@ -318,7 +318,7 @@ class General(commands.Cog):
         if info["enemyRace"] is not None:
             description += f'**Race** : {info["enemyRace"] or "???"}\n'
         # Attack types: Melee, Ranged, Ranged Arts, etc
-        description += f'''**Attack** : {info["attackType"] or "Doesn't Attack"}\n{info["description"]}'''
+        description += f'''**Attack** : {info["attackType"]}\n{info["description"]}'''
         embed = Embed(
             title=f'[{info["enemyIndex"]}] {info["name"]}',
             description=description)
@@ -362,7 +362,7 @@ class General(commands.Cog):
                 "You have to provide at least 1 tag and at most 5 tags!"
             )
         # Check for invalid tags
-        if set(constants.TAG_LIST).issubset(tags):
+        if set(tags).issubset(constants.TAG_LIST) is False:
             raise GeneralCogError(
                 f'Tag must be one of {", ".join(constants.TAG_LIST)}')
 

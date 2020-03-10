@@ -38,7 +38,7 @@ def main():
 
     # Load constants
     constants.setup()
-    logging.info("Constants loaded")
+    logging.info(f'Constants loaded: {", ".join(filter(lambda x: x.isupper(), dir(constants)))}')
 
     def no_dm_check(ctx):
         """ Check for DMs """
