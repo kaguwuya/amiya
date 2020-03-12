@@ -6,7 +6,9 @@ Return logic for every function: Get the value with highest Levenshtein Distance
 import json
 import logging
 import random
-from typing import Optional, Tuple, List
+# Get absolute path
+from pathlib import Path
+from typing import List, Optional, Tuple
 
 import requests
 # Fuzzy String Matching
@@ -58,7 +60,7 @@ def get_operator_info(operator: str) -> dict:
     global operator_table
     # Check if operator_table is already loaded and load it from local file
     if operator_table is None:
-        with open(f"ArknightsData/{locale}/gamedata/excel/character_table.json", "r", encoding="UTF-8") as f:
+        with open(str(Path(f"ArknightsData/{locale}/gamedata/excel/character_table.json").resolve()), "r", encoding="UTF-8") as f:
             operator_table = json.load(f)
 
     return max(
@@ -95,7 +97,7 @@ def get_operator_file(operator: str) -> Tuple[str, dict]:
     # Check if handbook_info_table is already loaded and load it from local file
     global handbook_info_table
     if handbook_info_table is None:
-        with open(f"ArknightsData/{locale}/gamedata/excel/handbook_info_table.json", "r", encoding="UTF-8") as f:
+        with open(str(Path(f"ArknightsData/{locale}/gamedata/excel/handbook_info_table.json").resolve()), "r", encoding="UTF-8") as f:
             handbook_info_table = json.load(f)
 
     # Get operator profile
@@ -104,13 +106,14 @@ def get_operator_file(operator: str) -> Tuple[str, dict]:
 
 charword_table = None
 
+
 def get_operator_audio(operator: str) -> Tuple[str, List[dict]]:
     """
     Grabs operator's voice records (search by operator name, ID or appellation)
-    
+
     Args:
         operator (str): Operator name, ID or appellation
-    
+
     Returns:
         Tuple[str, List[dict]]: A tuple contains a str denote the operator's name and a list of dict that contains the operator's audio records with ID, name or appellation that matches the parameter
     """
@@ -123,7 +126,7 @@ def get_operator_audio(operator: str) -> Tuple[str, List[dict]]:
     # Check if charword_table is already loaded and load it from local file
     global charword_table
     if charword_table is None:
-        with open(f"ArknightsData/{locale}/gamedata/excel/charword_table.json", "r", encoding="UTF-8") as f:
+        with open(str(Path(f"ArknightsData/{locale}/gamedata/excel/charword_table.json").resolve()), "r", encoding="UTF-8") as f:
             charword_table = json.load(f)
 
     # Get voice records
@@ -152,7 +155,7 @@ def get_operator_skins(operator: str) -> List[dict]:
     # Check if skin_table is already loaded and load it from local file
     global skin_table
     if skin_table is None:
-        with open(f"ArknightsData/{locale}/gamedata/excel/skin_table.json", "r", encoding="UTF-8") as f:
+        with open(str(Path(f"ArknightsData/{locale}/gamedata/excel/skin_table.json").resolve()), "r", encoding="UTF-8") as f:
             skin_table = json.load(f)
 
     # Get list of operator skins mapped by skin ID
@@ -182,7 +185,7 @@ def get_operator_skills(operator: str) -> List[dict]:
     # Check if skill_table is already loaded and load it from local file
     global skill_table
     if skill_table is None:
-        with open(f"ArknightsData/{locale}/gamedata/excel/skill_table.json", "r", encoding="UTF-8") as f:
+        with open(str(Path(f"ArknightsData/{locale}/gamedata/excel/skill_table.json").resolve()), "r", encoding="UTF-8") as f:
             skill_table = json.load(f)
 
     # Return a list of tuple with skill info from operator_table and skill_table
@@ -209,7 +212,7 @@ def get_operator_by_tags(tags: list) -> List[dict]:
     # from local file or fetch it
     global operator_table, hidden_table
     if operator_table is None:
-        with open(f"ArknightsData/{locale}/gamedata/excel/character_table.json", "r", encoding="UTF-8") as f:
+        with open(str(Path(f"ArknightsData/{locale}/gamedata/excel/character_table.json").resolve()), "r", encoding="UTF-8") as f:
             operator_table = json.load(f)
     if hidden_table is None:
         hidden_table = fetch(url)
@@ -278,7 +281,7 @@ def get_item(item: str) -> dict:
     # Check if item_table is already loaded and load it from local file
     global item_table
     if item_table is None:
-        with open(f"ArknightsData/{locale}/gamedata/excel/item_table.json", "r", encoding="UTF-8") as f:
+        with open(str(Path(f"ArknightsData/{locale}/gamedata/excel/item_table.json").resolve()), "r", encoding="UTF-8") as f:
             item_table = json.load(f)
 
     # Get item list from table
@@ -301,14 +304,14 @@ def get_stage(stage: str) -> Tuple[dict, dict, Optional[dict]]:
         stage (str): stage (str): Stage name, code or ID
 
     Returns:
-        Tuple[dict, dict, Optional[dict]]:  A tuple of dict that contains stage info with name, code or ID that matches the parameter. 
+        Tuple[dict, dict, Optional[dict]]:  A tuple of dict that contains stage info with name, code or ID that matches the parameter.
                                             Last variable is a dict if stage is annihilation
     """
 
     # Check if stage_table is already loaded and load it from local file
     global stage_table
     if stage_table is None:
-        with open(f"ArknightsData/{locale}/gamedata/excel/stage_table.json", "r", encoding="UTF-8") as f:
+        with open(str(Path(f"ArknightsData/{locale}/gamedata/excel/stage_table.json").resolve()), "r", encoding="UTF-8") as f:
             stage_table = json.load(f)
 
     # Get stage list
@@ -353,7 +356,7 @@ def get_stage_with_item(id: str) -> List[dict]:
     # Check if stage_table is already loaded and load it from local file
     global stage_table
     if stage_table is None:
-        with open(f"ArknightsData/{locale}/gamedata/excel/stage_table.json", "r", encoding="UTF-8") as f:
+        with open(str(Path(f"ArknightsData/{locale}/gamedata/excel/stage_table.json").resolve()), "r", encoding="UTF-8") as f:
             stage_table = json.load(f)
 
     # Get stage list
@@ -400,7 +403,7 @@ def get_furniture(furniture: str) -> dict:
     # Check if building_data is already loaded and load it from local file
     global building_data
     if building_data is None:
-        with open(f"ArknightsData/{locale}/gamedata/excel/building_data.json", "r", encoding="UTF-8") as f:
+        with open(str(Path(f"ArknightsData/{locale}/gamedata/excel/building_data.json").resolve()), "r", encoding="UTF-8") as f:
             building_data = json.load(f)
 
     # Get furniture list
@@ -432,7 +435,8 @@ def get_enemy(enemy: str) -> dict:
     global enemy_handbook_table
     if enemy_handbook_table is None:
         with open(
-            "ArknightsData/{locale}/gamedata/excel/enemy_handbook_table.json", "r"
+            str(Path(
+                f"ArknightsData/{locale}/gamedata/excel/enemy_handbook_table.json").resolve()), "r"
         ) as f:
             enemy_handbook_table = json.load(f)
 
@@ -460,7 +464,7 @@ def get_tips(category: str) -> dict:
     # Check if tip_table is already loaded and load it from local file
     global tip_table
     if tip_table is None:
-        with open(f"ArknightsData/{locale}/gamedata/excel/tip_table.json", "r", encoding="UTF-8") as f:
+        with open(str(Path(f"ArknightsData/{locale}/gamedata/excel/tip_table.json").resolve()), "r", encoding="UTF-8") as f:
             tip_table = json.load(f)
 
     # Get tip list
