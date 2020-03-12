@@ -19,8 +19,9 @@ class Dialog(ABC):
     async def quit(self, text: str = None):
         """
         Quit the dialog.
-        :param text:
-        :return:
+
+        Args:
+            text (str, optional): Quit text. Defaults to None.
         """
 
         if text is None:
@@ -32,10 +33,11 @@ class Dialog(ABC):
     async def update(self, text: str, color: hex = None, hide_author: bool = False):
         """
         This will update the confirmation embed.
-        :param text: The new text.
-        :param color: The new embed color.
-        :param hide_author: True if you want to hide the embed author. Default's to False.
-        :return: Nothing.
+
+        Args:
+            text (str): The new text.
+            color (hex, optional): The new embed color.. Defaults to None.
+            hide_author (bool, optional): True if you want to hide the embed author. Default's to False.
         """
 
         if color is None:
@@ -52,9 +54,10 @@ class Dialog(ABC):
     async def display(self, text: str = None, embed: discord.Embed = None):
         """
         This will edit the confirmation message.
-        :param text: The new text.
-        :param embed: The new embed.
-        :return: Nothing.
+        
+        Args:
+            text (str, optional): The new text.. Defaults to None.
+            embed (discord.Embed, optional): The new embed.. Defaults to None.
         """
 
         await self.message.edit(content=text, embed=embed)
@@ -71,9 +74,11 @@ class EmbedPaginator(Dialog):
     ):
         """
         Initialize a new EmbedPaginator.
-        :param client: The :class:`discord.Client` to use.
-        :param pages: A list of :class:`discord.Embed` to paginate through.
-        :param message: An optional :class:`discord.Message` to edit. Otherwise a new message will be sent.
+        
+        Args:
+            client (discord.Client): The :class:`discord.Client` to use.
+            pages ([type]):  A list of :class:`discord.Embed` to paginate through.
+            message (discord.Message, optional): An optional :class:`discord.Message` to edit. Otherwise a new message will be sent. Defaults to None.
         """
         super().__init__()
 
@@ -103,15 +108,13 @@ class EmbedPaginator(Dialog):
     async def run(self, users: List[discord.User], channel: discord.TextChannel = None):
         """
         Runs the paginator.
-        :type users: List[discord.User]
-        :param users:
-            A list of :class:`discord.User` that can control the pagination.
-            Passing an empty list will grant access to all users. (Not recommended.)
-        :type channel: Optional[discord.TextChannel]
-        :param channel:
-            The text channel to send the embed to.
-            Must only be specified if `self.message` is `None`.
-        :return: None
+        
+        Args:
+            users (List[discord.User]): A list of :class:`discord.User` that can control the pagination. Passing an empty list will grant access to all users. (Not recommended.)
+            channel (discord.TextChannel, optional): The text channel to send the embed to. Must only be specified if `self.message` is `None`. Defaults to None.
+        
+        Raises:
+            TypeError: 
         """
 
         if channel is None and self.message is not None:
@@ -145,7 +148,7 @@ class EmbedPaginator(Dialog):
         while True:
             try:
                 reaction, user = await self._client.wait_for(
-                    "reaction_add", check=check, timeout=100
+                    "reaction_add", check=check, timeout=600
                 )
             except asyncio.TimeoutError:
                 await self.message.clear_reactions()
@@ -209,9 +212,11 @@ class BotEmbedPaginator(EmbedPaginator):
     ):
         """
         Initialize a new EmbedPaginator.
-        :param ctx: The :class:`discord.ext.commands.Context` to use.
-        :param pages: A list of :class:`discord.Embed` to paginate through.
-        :param message: An optional :class:`discord.Message` to edit. Otherwise a new message will be sent.
+        
+        Args:
+            ctx (commands.Context): The :class:`discord.ext.commands.Context` to use.
+            pages ([type]): A list of :class:`discord.Embed` to paginate through.
+            message (discord.Message, optional): An optional :class:`discord.Message` to edit. Otherwise a new message will be sent. Defaults to None.
         """
         self._ctx = ctx
 
@@ -222,16 +227,10 @@ class BotEmbedPaginator(EmbedPaginator):
     ):
         """
         Runs the paginator.
-        :type channel: Optional[discord.TextChannel]
-        :param channel:
-            The text channel to send the embed to.
-            Default is the context channel.
-        :type users: Optional[List[discord.User]]
-        :param users:
-            A list of :class:`discord.User` that can control the pagination.
-            Default is the context author.
-            Passing an empty list will grant access to all users. (Not recommended.)
-        :return: None
+        
+        Args:
+            channel (discord.TextChannel, optional): The text channel to send the embed to. Default is the context channel.
+            users (List[discord.User], optional):  A list of :class:`discord.User` that can control the pagination. Default is the context author. Passing an empty list will grant access to all users. (Not recommended)
         """
 
         if users is None:

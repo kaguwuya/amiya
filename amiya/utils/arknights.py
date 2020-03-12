@@ -6,7 +6,7 @@ Return logic for every function: Get the value with highest Levenshtein Distance
 import json
 import logging
 import random
-from typing import Optional, Tuple
+from typing import Optional, Tuple, List
 
 import requests
 # Fuzzy String Matching
@@ -73,12 +73,13 @@ def get_operator_info(operator: str) -> dict:
         ),
     )
 
+
 handbook_info_table = None
 
 
-def get_operator_profile(operator: str) -> Tuple[str, dict]:
+def get_operator_file(operator: str) -> Tuple[str, dict]:
     """
-    Grabs operator detailed profile (search by operator name, ID or appellation)
+    Grabs operator's detailed file (search by operator name, ID or appellation)
 
     Args:
         operator (str): Operator name, ID or appellation
@@ -100,23 +101,52 @@ def get_operator_profile(operator: str) -> Tuple[str, dict]:
     # Get operator profile
     return (info[1]["name"], handbook_info_table["handbookDict"][char_id])
 
-skin_table = None
 
+charword_table = None
 
-def get_operator_skins(operator: str) -> list:
+def get_operator_audio(operator: str) -> Tuple[str, List[dict]]:
     """
-    Grabs operator skins detailed infos (search by operator name, ID or appellation)
-
+    Grabs operator's voice records (search by operator name, ID or appellation)
+    
     Args:
         operator (str): Operator name, ID or appellation
-
+    
     Returns:
-        list: A list of dict that contains the operator skins with ID, name or appellation that matches the parameter
+        Tuple[str, List[dict]]: A tuple contains a str denote the operator's name and a list of dict that contains the operator's audio records with ID, name or appellation that matches the parameter
     """
 
     # Search for operator
     info = get_operator_info(operator)
     # Get default skin ID
+    char_id = info[0]
+
+    # Check if charword_table is already loaded and load it from local file
+    global charword_table
+    if charword_table is None:
+        with open(f"ArknightsData/{locale}/gamedata/excel/charword_table.json", "r", encoding="UTF-8") as f:
+            charword_table = json.load(f)
+
+    # Get voice records
+    return (info[1]["name"], sorted([voice for voice in charword_table.values() if voice["charId"] == char_id], key=lambda voice: voice["voiceIndex"]))
+
+
+skin_table = None
+
+
+def get_operator_skins(operator: str) -> List[dict]:
+    """
+    Grabs operator's skins detailed infos (search by operator name, ID or appellation)
+
+    Args:
+        operator (str): Operator name, ID or appellation
+
+    Returns:
+        List[dict]: A list of dict that contains the operator's skins with ID, name or appellation that matches the parameter
+    """
+
+    # Search for operator
+    info = get_operator_info(operator)
+    # Get operator ID
     char_id = info[0]
 
     # Check if skin_table is already loaded and load it from local file
@@ -133,7 +163,7 @@ def get_operator_skins(operator: str) -> list:
 skill_table = None
 
 
-def get_operator_skills(operator: str) -> list:
+def get_operator_skills(operator: str) -> List[dict]:
     """
     Grabs operator skills detailed infos (search by operator name, ID or appellation)
 
@@ -141,7 +171,7 @@ def get_operator_skills(operator: str) -> list:
         operator (str): Operator name, ID or appellation
 
     Returns:
-        list: A list of tuple (skill from character_table, skill from skill_table) that contains the operator skills with ID, name or appellation that matches the parameter
+        List[dict]: A list of tuple (skill from character_table, skill from skill_table) that contains the operator skills with ID, name or appellation that matches the parameter
     """
 
     # Search for operator
@@ -163,7 +193,7 @@ def get_operator_skills(operator: str) -> list:
 hidden_table = None
 
 
-def get_operator_by_tags(tags: list) -> list:
+def get_operator_by_tags(tags: list) -> List[dict]:
     """
     Grabs operators that contains given tags
 
@@ -171,7 +201,7 @@ def get_operator_by_tags(tags: list) -> list:
         tags (list): The input tags list (input must be correct)
 
     Returns:
-        list: A list of dict that contains operator's name, position (Ranged or Melee), tag list. rarity and profession
+        List[dict]: A list of dict that contains operator's name, position (Ranged or Melee), tag list. rarity and profession
     """
 
     url = "https://raw.githubusercontent.com/Aceship/AN-EN-Tags/master/json/akhr.json"
@@ -309,7 +339,7 @@ def get_stage(stage: str) -> Tuple[dict, dict, Optional[dict]]:
     return (stage_info, stage_extra_info, anni_info)
 
 
-def get_stage_with_item(id: str) -> list:
+def get_stage_with_item(id: str) -> List[dict]:
     """
     Grabs stages that drops item with id
 
@@ -317,7 +347,7 @@ def get_stage_with_item(id: str) -> list:
         id (str): Item ID (input must be correct)
 
     Returns:
-        list: A list that contains tuple (stage that drop item with ID, probability of item dropping)
+        List[dict]: A list that contains tuple (stage that drop item with ID, probability of item dropping)
     """
 
     # Check if stage_table is already loaded and load it from local file

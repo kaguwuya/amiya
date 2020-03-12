@@ -40,34 +40,79 @@ class Operator(commands.Cog):
 
         await ctx.send(embed=discord_common.embed_info("Command under construction"))
 
-    @operator.command(brief="Shows operator's profile", usage="[operator]")
-    async def profile(self, ctx, *, operator=None):
+    @operator.command(brief="Shows operator's file", usage="[operator]")
+    async def file(self, ctx, *, operator=None):
         """
-        Detailed profile of specified operator
+        Detailed file of specified operator
 
-        E.g: ;operator profile Angelina
+        E.g: ;operator file Angelina
         """
 
         if operator is None:
             raise OperatorCogError("You need to provide an operator name!")
 
-        # Get profile
-        info = arknights.get_operator_profile(operator)
+        # Get file
+        info = arknights.get_operator_file(operator)
 
         # Initialize embed
         embed = Embed(
             title=info[0], description=f'Painter : {info[1]["drawName"]}\nCV : {info[1]["infoName"]}')
 
-        # Get each profile piece
+        # Get each file piece
         [embed.add_field(name=story["storyTitle"], value="\n".join(list(map(
             lambda x: x["storyText"], story["stories"]))), inline=False) for story in info[1]["storyTextAudio"]]
 
         # Add image to make the embed less boring with text only
+        # https://github.com/Aceship/AN-EN-Tags/tree/master/img
         embed.set_thumbnail(
             url=f'https://raw.githubusercontent.com/Aceship/AN-EN-Tags/master/img/portraits/{pathname2url(info[1]["charID"])}_1.png')
 
         # Send embed
         await ctx.send(embed=embed)
+
+    @operator.command(brief="Shows operator's audio records", usage="[operator]")
+    async def audio(self, ctx, *, operator=None):
+        """
+        Audio records of specified operator
+
+        E.g: ;operator audio Angelina
+        """
+
+        if operator is None:
+            raise OperatorCogError("You need to provide an operator name!")
+
+        # Get audio records
+        info = arknights.get_operator_audio(operator)
+
+        # Get profile to make the embed less boring
+        profile = arknights.get_operator_file(operator)
+
+        embeds, lgt = [], len(info[1])
+        for i in range(3):
+            # Initalize embed
+            embed = Embed(
+                title=info[0], description=f'Painter : {profile[1]["drawName"]}\nCV : {profile[1]["infoName"]}')
+
+            # Get each voice records from
+            # https://aceship.github.io/AN-EN-Tags/etc/voice/
+            space = '\u2000'  # Backslashes may not appear inside the expression portions of f-strings
+            [embed.add_field(name=voice["voiceTitle"],
+                             value=f'[▶️](https://aceship.github.io/AN-EN-Tags/etc/voice/{voice["voiceAsset"]}.mp3){space}{voice["voiceText"].replace("{@nickname}", "???")}', inline=False) for voice in info[1][lgt*i//3:(lgt*(i+1)//3 if i < 2 else lgt)]]
+
+            # FYI
+            embed.set_footer(
+                text="In case you didn't notice, you can click on the icon ▶️ to listen to the audio records !")
+
+            # Add image to make the embed less boring with text only
+            # https://github.com/Aceship/AN-EN-Tags/tree/master/img
+            embed.set_thumbnail(
+                url=f'https://raw.githubusercontent.com/Aceship/AN-EN-Tags/master/img/portraits/{pathname2url(info[1][0]["charId"])}_1.png')
+
+            embeds.append(embed)
+
+        # Start paginator
+        pgnt = paginator.BotEmbedPaginator(ctx, embeds)
+        await pgnt.run()
 
     @operator.command(brief="Shows operator's skins info", usage="[operator]")
     async def skins(self, ctx, *, operator=None):
@@ -129,6 +174,7 @@ class Operator(commands.Cog):
                 url=f'https://raw.githubusercontent.com/Aceship/AN-EN-Tags/master/img/portraits/{pathname2url(skin["portraitId"].replace("+", "a").replace("#", "b" if skin["displaySkin"]["modelName"] == "Amiya" else ""))}.png')
 
             embeds.append(embed)
+
         # Start paginator
         pgnt = paginator.BotEmbedPaginator(ctx, embeds)
         await pgnt.run()
