@@ -40,6 +40,35 @@ class Operator(commands.Cog):
 
         await ctx.send(embed=discord_common.embed_info("Command under construction"))
 
+    @operator.command(brief="Shows operator's profile", usage="[operator]")
+    async def profile(self, ctx, *, operator=None):
+        """
+        Detailed profile of specified operator
+
+        E.g: ;operator profile Angelina
+        """
+
+        if operator is None:
+            raise OperatorCogError("You need to provide an operator name!")
+
+        # Get profile
+        info = arknights.get_operator_profile(operator)
+
+        # Initialize embed
+        embed = Embed(
+            title=info[0], description=f'Painter : {info[1]["drawName"]}\nCV : {info[1]["infoName"]}')
+
+        # Get each profile piece
+        [embed.add_field(name=story["storyTitle"], value="\n".join(list(map(
+            lambda x: x["storyText"], story["stories"]))), inline=False) for story in info[1]["storyTextAudio"]]
+
+        # Add image to make the embed less boring with text only
+        embed.set_thumbnail(
+            url=f'https://raw.githubusercontent.com/Aceship/AN-EN-Tags/master/img/portraits/{pathname2url(info[1]["charID"])}_1.png')
+
+        # Send embed
+        await ctx.send(embed=embed)
+
     @operator.command(brief="Shows operator's skins info", usage="[operator]")
     async def skins(self, ctx, *, operator=None):
         """

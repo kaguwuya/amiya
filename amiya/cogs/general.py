@@ -208,6 +208,7 @@ class General(commands.Cog):
                 [f'**{ladder["killCnt"]}** kills\n• Sanity Refund : {ladder["apFailReturn"]}\n• EXP Gain : {ladder["expGain"]}\n• LMD Gain : {ladder["goldGain"]}\n• Favor Gain : {ladder["favor"]}' for ladder in gain_ladder]), inline=False)
 
         # Unreliable image source
+        # https://gamepress.gg/arknights/database/combat-operation-list
         embed.set_image(
             url=f'https://gamepress.gg/arknights/sites/arknights/files/game-images/mission_maps/{info["stageId"]}.png')
 
