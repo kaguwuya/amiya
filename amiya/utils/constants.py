@@ -4,8 +4,6 @@ Store constant data
 
 import json
 import sys
-# Get absolute path
-from pathlib import Path
 
 from inflection import underscore
 
@@ -17,14 +15,14 @@ def setup() -> None:
 
     # Load json data to gamedata_const
     gamedata_const = None
-    with open(str(Path("ArknightsData/en-US/gamedata/excel/gamedata_const.json").resolve()), "r") as f:
+    with open("ArknightsData/en-US/gamedata/excel/gamedata_const.json", "r") as f:
         gamedata_const = json.load(f)
 
     # Assign variables to module
     for key, value in gamedata_const.items():
         setattr(
             sys.modules[__name__],
-            underscore(key).upper(),  # Following PEP8
+            underscore(key).upper(), # Following PEP8
             value)
 
 
