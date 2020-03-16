@@ -439,7 +439,7 @@ def get_enemy(enemy: str) -> dict:
     global enemy_handbook_table
     if enemy_handbook_table is None:
         with open(
-            "ArknightsData/{locale}/gamedata/excel/enemy_handbook_table.json", "r"
+            f"ArknightsData/{locale}/gamedata/excel/enemy_handbook_table.json", "r"
         ) as f:
             enemy_handbook_table = json.load(f)
 
