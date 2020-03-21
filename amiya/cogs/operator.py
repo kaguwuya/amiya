@@ -54,21 +54,23 @@ class Operator(commands.Cog):
         # Get file
         info = arknights.get_operator_file(operator)
 
-        # Initialize embed
-        embed = Embed(
-            title=info[0], description=f'Painter : {info[1]["drawName"]}\nCV : {info[1]["infoName"]}')
+        embeds = []
+        for idx, story in enumerate(info[1]["storyTextAudio"]):
+            # Initialize embed and get each file piece
+            endl = "\n"
+            embed = Embed(
+                title=info[0], description=f'''Painter : {info[1]["drawName"]}\nCV : {info[1]["infoName"]}\n\n**{story["storyTitle"]}**\n{endl.join(list(map(lambda x: x["storyText"], story["stories"])))}''')
 
-        # Get each file piece
-        [embed.add_field(name=story["storyTitle"], value="\n".join(list(map(
-            lambda x: x["storyText"], story["stories"]))), inline=False) for story in info[1]["storyTextAudio"]]
+            # Add image to make the embed less boring with text only
+            # https://github.com/Aceship/AN-EN-Tags/tree/master/img
+            embed.set_thumbnail(
+                url=f'https://raw.githubusercontent.com/Aceship/AN-EN-Tags/master/img/portraits/{pathname2url(info[1]["charID"])}_1.png')
 
-        # Add image to make the embed less boring with text only
-        # https://github.com/Aceship/AN-EN-Tags/tree/master/img
-        embed.set_thumbnail(
-            url=f'https://raw.githubusercontent.com/Aceship/AN-EN-Tags/master/img/portraits/{pathname2url(info[1]["charID"])}_1.png')
+            embeds.append(embed)
 
-        # Send embed
-        await ctx.send(embed=embed)
+        # Start paginator
+        pgnt = paginator.BotEmbedPaginator(ctx, embeds)
+        await pgnt.run()
 
     @operator.command(brief="Shows operator's audio records", usage="[operator]")
     async def audio(self, ctx, *, operator=None):
